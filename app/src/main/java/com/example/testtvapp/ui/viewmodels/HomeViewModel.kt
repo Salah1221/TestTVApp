@@ -1,8 +1,8 @@
 package com.example.testtvapp.ui.viewmodels
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testtvapp.data.model.MediaItem
@@ -12,19 +12,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val mediaRepository: IMediaRepository): ViewModel() {
-    var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
-        private set
+    var mediaItems by mutableStateOf<Result<List<MediaItem>>>(Result.Loading)
 
     fun getMediaItems() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = mediaRepository.getMediaItems()) {
-                is Result.Success -> {
-                    mediaItems = result.data
-                }
-                is Result.Error -> {
-
-                }
-            }
+            val result = mediaRepository.getMediaItems()
+            mediaItems = result
         }
     }
 }
