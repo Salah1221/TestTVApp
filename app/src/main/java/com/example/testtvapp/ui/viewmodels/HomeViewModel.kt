@@ -6,11 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testtvapp.data.model.MediaItem
-import com.example.testtvapp.data.repository.IMediaRepository
+import com.example.testtvapp.data.repository.MediaRepository
 import com.example.testtvapp.data.repository.Result
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val mediaRepository: IMediaRepository): ViewModel() {
+class HomeViewModel(private val mediaRepository: MediaRepository): ViewModel() {
     var mediaItems by mutableStateOf<Result<List<MediaItem>>>(Result.Loading)
 
     fun getMediaItems() {
