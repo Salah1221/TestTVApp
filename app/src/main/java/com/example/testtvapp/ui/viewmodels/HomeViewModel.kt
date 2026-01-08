@@ -8,14 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.repository.IMediaRepository
 import com.example.testtvapp.data.repository.Result
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val mediaRepository: IMediaRepository): ViewModel() {
     var mediaItems by mutableStateOf<Result<List<MediaItem>>>(Result.Loading)
 
     fun getMediaItems() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val result = mediaRepository.getMediaItems()
             mediaItems = result
         }
