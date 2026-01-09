@@ -2,13 +2,14 @@ package com.example.testtvapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.repository.MediaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed interface HomeUiState {
-    data class Success<out T>(val data: T) : HomeUiState
+    data class Success(val data: List<MediaItem>) : HomeUiState
     data class Error(val exception: Exception) : HomeUiState
     data object Loading : HomeUiState
 }
