@@ -81,7 +81,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             is HomeUiState.Success -> {
                 val mediaItems = state.data
                 if (mediaItems.isNotEmpty()) {
-                    MediaPlayer(mediaItem = mediaItems[index ?: 0], modifier = modifier.fillMaxSize())
+                    MediaPlayer(
+                        mediaItem = mediaItems[index ?: 0],
+                        modifier = modifier.fillMaxSize(),
+                        onMediaEnd = { homeViewModel.nextMedia(mediaItems.size) }
+                    )
                 } else {
                     Box(
                         modifier = Modifier.fillMaxSize(),

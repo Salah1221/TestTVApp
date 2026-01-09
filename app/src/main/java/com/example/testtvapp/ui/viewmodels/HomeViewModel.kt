@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.repository.MediaRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,21 +20,6 @@ class HomeViewModel(private val mediaRepository: MediaRepository): ViewModel() {
     private val _mediaIndex = MutableStateFlow<Int?>(null)
     val mediaIndex = _mediaIndex.asStateFlow()
 
-    init {
-        getMediaItems()
-        viewModelScope.launch {
-            while (true) {
-                val state = _mediaItems.value
-                if (state is HomeUiState.Success) {
-                    delay(5000L)
-                    _mediaIndex.value = _mediaIndex.value?.plus(1)?.rem(state.data.size)
-                } else {
-                    delay(300L)
-                }
-            }
-        }
-    }
-
     fun getMediaItems() {
         viewModelScope.launch {
             _mediaItems.value = HomeUiState.Loading
@@ -47,5 +31,9 @@ class HomeViewModel(private val mediaRepository: MediaRepository): ViewModel() {
                 _mediaItems.value = HomeUiState.Error(e)
             }
         }
+    }
+
+    fun nextMedia(size: Int) {
+        _mediaIndex.value = _mediaIndex.value?.plus(1)?.rem(size)
     }
 }

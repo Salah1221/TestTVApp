@@ -14,34 +14,47 @@ import androidx.media3.ui.compose.PlayerSurface
 import coil.compose.AsyncImage
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.model.MediaItemType
+import kotlinx.coroutines.delay
 
 @Composable
-fun MediaPlayer(mediaItem: MediaItem, modifier: Modifier = Modifier) {
+fun MediaPlayer(mediaItem: MediaItem, modifier: Modifier = Modifier, onMediaEnd: (() -> Unit)? = null) {
     when (mediaItem.type) {
         MediaItemType.IMAGE -> {
+            LaunchedEffect(mediaItem.uri) {
+                delay(5000L)
+                onMediaEnd?.invoke()
+            }
             AsyncImage(
                 model = mediaItem.uri,
                 contentDescription = mediaItem.name,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = modifier.fillMaxSize(),
             )
         }
         MediaItemType.VIDEO -> {
             VideoPlayer(
                 uri = mediaItem.uri,
-                modifier = modifier
+                modifier = modifier,
+                onVideoEnd = onMediaEnd
             )
         }
     }
 }
 
 @Composable
-private fun VideoPlayer(uri: android.net.Uri, modifier: Modifier = Modifier) {
+private fun VideoPlayer(uri: android.net.Uri, modifier: Modifier = Modifier, onVideoEnd: (() -> Unit)? = null) {
     val context = LocalContext.current
 
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             repeatMode = Player.REPEAT_MODE_OFF
+            addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    if (playbackState == Player.STATE_ENDED) {
+                        onVideoEnd?.invoke()
+                    }
+                }
+            })
         }
     }
 
