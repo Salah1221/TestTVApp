@@ -1,22 +1,25 @@
 package com.example.testtvapp.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.repository.MediaRepository
 import com.example.testtvapp.data.repository.Result
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val mediaRepository: MediaRepository): ViewModel() {
-    var mediaItems by mutableStateOf<Result<List<MediaItem>>>(Result.Loading)
+    private val _mediaItems = MutableStateFlow<Result<*>>(Result.Loading)
+    val mediaItems = _mediaItems.asStateFlow()
+
+    init {
+        getMediaItems()
+    }
 
     fun getMediaItems() {
         viewModelScope.launch {
             val result = mediaRepository.getMediaItems()
-            mediaItems = result
+            _mediaItems.value = result
         }
     }
 }
