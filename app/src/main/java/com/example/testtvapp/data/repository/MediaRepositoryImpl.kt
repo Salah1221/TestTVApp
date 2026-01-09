@@ -8,14 +8,14 @@ import com.example.testtvapp.data.model.MediaItemType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-sealed class Result<out R> {
-    data class Success<out T>(val data: T) : Result<T>()
-    data class Error(val exception: Exception) : Result<Nothing>()
-    data object Loading : Result<Nothing>()
+sealed interface HomeUiState {
+    data class Success<out T>(val data: T) : HomeUiState
+    data class Error(val exception: Exception) : HomeUiState
+    data object Loading : HomeUiState
 }
 
 class MediaRepositoryImpl(private val context: Context) : MediaRepository {
-    override suspend fun getMediaItems(): Result<List<MediaItem>> {
+    override suspend fun getMediaItems(): HomeUiState {
         return withContext(Dispatchers.IO) {
             val mediaList: MutableList<MediaItem>
             try {
@@ -62,10 +62,10 @@ class MediaRepositoryImpl(private val context: Context) : MediaRepository {
                         } while (cursor.moveToNext())
                     }
                 }
-                Result.Success(mediaList)
+                HomeUiState.Success(mediaList)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Result.Error(e)
+                HomeUiState.Error(e)
             }
         }
     }
