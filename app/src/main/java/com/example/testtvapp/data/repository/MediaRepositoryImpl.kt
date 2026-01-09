@@ -6,67 +6,55 @@ import android.provider.MediaStore
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.model.MediaItemType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-sealed interface HomeUiState {
-    data class Success<out T>(val data: T) : HomeUiState
-    data class Error(val exception: Exception) : HomeUiState
-    data object Loading : HomeUiState
-}
-
 class MediaRepositoryImpl(private val context: Context) : MediaRepository {
-    override suspend fun getMediaItems(): HomeUiState {
+    override suspend fun getMediaItems(): List<MediaItem> {
         return withContext(Dispatchers.IO) {
-            val mediaList: MutableList<MediaItem>
-            try {
-                val projection: Array<String> = arrayOf(
-                    MediaStore.MediaColumns._ID,
-                    MediaStore.MediaColumns.DISPLAY_NAME,
-                    MediaStore.MediaColumns.MIME_TYPE
-                )
+            val mediaList: MutableList<MediaItem> = mutableListOf()
+            val projection: Array<String> = arrayOf(
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.MIME_TYPE
+            )
 
-                val selection = "${MediaStore.MediaColumns.MIME_TYPE} LIKE ? OR ${MediaStore.MediaColumns.MIME_TYPE} LIKE ?"
-                val selectionArgs = arrayOf("image/%", "video/%")
+            val selection = "${MediaStore.MediaColumns.MIME_TYPE} LIKE ? OR ${MediaStore.MediaColumns.MIME_TYPE} LIKE ?"
+            val selectionArgs = arrayOf("image/%", "video/%")
 
-                mediaList = mutableListOf()
+            context.contentResolver.query(
+                MediaStore.Files.getContentUri("external"),
+                projection,
+                selection,
+                selectionArgs,
+                "${MediaStore.MediaColumns.DATE_ADDED} DESC"
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                    val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val mimeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
 
-                context.contentResolver.query(
-                    MediaStore.Files.getContentUri("external"),
-                    projection,
-                    selection,
-                    selectionArgs,
-                    "${MediaStore.MediaColumns.DATE_ADDED} DESC"
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                        val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-                        val mimeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+                    do {
+                        val id = cursor.getLong(idColumn)
+                        val name = cursor.getString(nameColumn)
+                        val mimeType = cursor.getString(mimeColumn)
 
-                        do {
-                            val id = cursor.getLong(idColumn)
-                            val name = cursor.getString(nameColumn)
-                            val mimeType = cursor.getString(mimeColumn)
+                        val uri = ContentUris.withAppendedId(
+                            MediaStore.Files.getContentUri("external"),
+                            id
+                        )
 
-                            val uri = ContentUris.withAppendedId(
-                                MediaStore.Files.getContentUri("external"),
-                                id
-                            )
+                        val type = when {
+                            mimeType.startsWith("image/") -> MediaItemType.IMAGE
+                            mimeType.startsWith("video/") -> MediaItemType.VIDEO
+                            else -> MediaItemType.IMAGE
+                        }
 
-                            val type = when {
-                                mimeType.startsWith("image/") -> MediaItemType.IMAGE
-                                mimeType.startsWith("video/") -> MediaItemType.VIDEO
-                                else -> MediaItemType.IMAGE
-                            }
-
-                            mediaList += MediaItem(uri, name, type)
-                        } while (cursor.moveToNext())
-                    }
+                        mediaList += MediaItem(uri, name, type)
+                    } while (cursor.moveToNext())
                 }
-                HomeUiState.Success(mediaList)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                HomeUiState.Error(e)
             }
+            mediaList
         }
     }
 }
