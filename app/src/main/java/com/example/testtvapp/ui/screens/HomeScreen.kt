@@ -32,6 +32,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         factory = TestTvApplication.container.vmFactory
     )
     val uiState by homeViewModel.mediaItems.collectAsStateWithLifecycle()
+    val index by homeViewModel.mediaIndex.collectAsStateWithLifecycle()
 
     val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
@@ -80,7 +81,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             is HomeUiState.Success -> {
                 val mediaItems = state.data
                 if (mediaItems.isNotEmpty()) {
-                    MediaPlayer(mediaItem = mediaItems[0], modifier = modifier.fillMaxSize())
+                    MediaPlayer(mediaItem = mediaItems[index ?: 0], modifier = modifier.fillMaxSize())
                 } else {
                     Box(
                         modifier = Modifier.fillMaxSize(),
