@@ -7,6 +7,9 @@ import com.example.testtvapp.data.repository.MediaRepositoryImpl
 import com.example.testtvapp.ui.viewmodels.HomeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 interface AppContainer {
     val mediaRepository: MediaRepository
@@ -14,7 +17,15 @@ interface AppContainer {
 }
 
 class AppContainerImpl(private val context: Context): AppContainer {
-    private val client = HttpClient(Android)
+    private val client = HttpClient(Android) {
+        install(ContentNegotiation) {
+            json(
+                json = Json {
+                    ignoreUnknownKeys = true
+                }
+            )
+        }
+    }
     override val mediaRepository: MediaRepository by lazy {
         MediaRepositoryImpl(context, client)
     }

@@ -20,6 +20,10 @@ class HomeViewModel(private val mediaRepository: MediaRepository): ViewModel() {
     private val _mediaIndex = MutableStateFlow<Int?>(null)
     val mediaIndex = _mediaIndex.asStateFlow()
 
+    init {
+        getMediaItems()
+    }
+
     fun getMediaItems() {
         viewModelScope.launch {
             _mediaItems.value = HomeUiState.Loading
