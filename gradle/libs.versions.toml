@@ -5,6 +5,8 @@ kotlin = "2.0.21"
 coreKtx = "1.17.0"
 appcompat = "1.7.1"
 composeBom = "2024.09.00"
+ktorClientAndroid = "3.3.3"
+ktorClientCore = "3.3.3"
 lifecycleViewmodelCompose = "2.10.0"
 media3Exoplayer = "1.9.0"
 media3Ui = "1.9.0"
@@ -32,6 +34,8 @@ androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.re
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

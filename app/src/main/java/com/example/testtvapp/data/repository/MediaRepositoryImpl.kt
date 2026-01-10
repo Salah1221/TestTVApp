@@ -5,11 +5,12 @@ import android.content.Context
 import android.provider.MediaStore
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.model.MediaItemType
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-class MediaRepositoryImpl(private val context: Context) : MediaRepository {
+class MediaRepositoryImpl(private val context: Context, private val httpClient: HttpClient) : MediaRepository {
     override suspend fun getMediaItems(): List<MediaItem> {
         return withContext(Dispatchers.IO) {
             val mediaList: MutableList<MediaItem> = mutableListOf()

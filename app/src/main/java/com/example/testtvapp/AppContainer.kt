@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.testtvapp.data.repository.MediaRepository
 import com.example.testtvapp.data.repository.MediaRepositoryImpl
 import com.example.testtvapp.ui.viewmodels.HomeViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 
 interface AppContainer {
     val mediaRepository: MediaRepository
@@ -12,8 +14,9 @@ interface AppContainer {
 }
 
 class AppContainerImpl(private val context: Context): AppContainer {
+    private val client = HttpClient(Android)
     override val mediaRepository: MediaRepository by lazy {
-        MediaRepositoryImpl(context)
+        MediaRepositoryImpl(context, client)
     }
 
     override val vmFactory: ViewModelProvider.Factory by lazy {
