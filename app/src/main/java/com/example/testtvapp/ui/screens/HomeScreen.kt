@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Text
 import com.example.testtvapp.TestTvApplication
+import com.example.testtvapp.ui.components.DownloadProgressScreen
 import com.example.testtvapp.ui.components.MediaPlayer
 import com.example.testtvapp.ui.viewmodels.HomeUiState
 import com.example.testtvapp.ui.viewmodels.HomeViewModel
@@ -24,12 +25,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     when(val state = uiState) {
         is HomeUiState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "Loading...")
-            }
+            DownloadProgressScreen(
+                state = state,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         is HomeUiState.Success -> {
             val mediaItems = state.data
