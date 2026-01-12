@@ -1,11 +1,17 @@
 package com.example.testtvapp.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.C
@@ -16,7 +22,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.compose.PlayerSurface
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
-import androidx.media3.ui.compose.SurfaceType
 import coil.compose.AsyncImage
 import com.example.testtvapp.data.model.MediaItem
 import com.example.testtvapp.data.model.MediaItemType
@@ -54,6 +59,7 @@ private fun VideoPlayer(
     onVideoEnd: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
+    var isVideoReady by remember { mutableStateOf(false) }
 
     val trackSelector = remember {
         DefaultTrackSelector(context).apply {
@@ -93,8 +99,13 @@ private fun VideoPlayer(
             videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
             addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
-                    if (playbackState == Player.STATE_ENDED) {
-                        onVideoEnd?.invoke()
+                    when (playbackState) {
+                        Player.STATE_READY -> {
+                            isVideoReady = true
+                        }
+                        Player.STATE_ENDED -> {
+                            onVideoEnd?.invoke()
+                        }
                     }
                 }
             })
@@ -102,6 +113,7 @@ private fun VideoPlayer(
     }
 
     LaunchedEffect(uri) {
+        isVideoReady = false
         exoPlayer.setMediaItem(androidx.media3.common.MediaItem.fromUri(uri))
         exoPlayer.prepare()
         exoPlayer.playWhenReady = true
@@ -113,9 +125,17 @@ private fun VideoPlayer(
         }
     }
 
+    val alpha by animateFloatAsState(
+        targetValue = if (isVideoReady) 1f else 0f,
+        animationSpec = tween(durationMillis = 300),
+        label = "video_alpha"
+    )
+
     PlayerSurface(
         player = exoPlayer,
         surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .alpha(alpha)
     )
 }

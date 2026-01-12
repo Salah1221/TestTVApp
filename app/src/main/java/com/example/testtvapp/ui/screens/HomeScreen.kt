@@ -1,5 +1,7 @@
 package com.example.testtvapp.ui.screens
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -33,11 +35,19 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         is HomeUiState.Success -> {
             val mediaItems = state.data
             if (mediaItems.isNotEmpty()) {
-                MediaPlayer(
-                    mediaItem = mediaItems[index ?: 0],
+                val currentIndex = index ?: 0
+                Crossfade(
+                    targetState = currentIndex,
+                    animationSpec = tween(durationMillis = 800),
                     modifier = modifier.fillMaxSize(),
-                    onMediaEnd = { homeViewModel.nextMedia(mediaItems.size) }
-                )
+                    label = "media_crossfade"
+                ) { displayIndex ->
+                    MediaPlayer(
+                        mediaItem = mediaItems[displayIndex],
+                        modifier = Modifier.fillMaxSize(),
+                        onMediaEnd = { homeViewModel.nextMedia(mediaItems.size) }
+                    )
+                }
             } else {
                 Box(
                     modifier = Modifier.fillMaxSize(),
